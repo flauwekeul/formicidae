@@ -13,4 +13,7 @@ module.exports = {
     'plugin:json/recommended-with-comments',
     'prettier',
   ],
+  rules: {
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+  },
 }

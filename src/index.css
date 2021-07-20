@@ -1,0 +1,16 @@
+:root {
+  /* https://coolors.co/222222-e3170a-e3b505-56a3a6-ffffff */
+  --eerie-black: #222f;
+  --vermilion: #e3170aff;
+  --saffron: #e3b505ff;
+  --cadet-blue: #56a3a6ff;
+  --white: #ffff;
+}
+
+body {
+  margin: 0;
+}
+
+.ant {
+  position: absolute;
+}
