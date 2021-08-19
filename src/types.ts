@@ -1,7 +1,3 @@
-import { CompassDirection } from 'honeycomb-grid'
+import { Hex } from 'honeycomb-grid'
 
-export interface Ant {
-  x: number
-  y: number
-  direction: CompassDirection
-}
+export type Tile = Hex
