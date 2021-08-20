@@ -1,5 +1,4 @@
 import { CompassDirection, Grid, Hex, neighborOf } from 'honeycomb-grid'
-import { ANT_SIZE_MODIFIER, TILE_SIZE } from '../setting'
 import { directionInDegrees, Tile } from '../types'
 import { signedModulo } from '../utils'
 import antSvgPath from './ant.svg'
@@ -54,9 +53,6 @@ export class Ant {
     const element = document.createElement('img')
     element.setAttribute('src', antSvgPath)
     element.classList.add('ant')
-    // todo: use css class for width and height
-    element.style.width = `${TILE_SIZE * ANT_SIZE_MODIFIER}px`
-    element.style.height = `${TILE_SIZE * ANT_SIZE_MODIFIER}px`
     return element
   }
 }
