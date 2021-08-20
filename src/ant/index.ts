@@ -1,9 +1,12 @@
 import { CompassDirection, Grid, Hex, neighborOf } from 'honeycomb-grid'
+import { ANT_TICK_INTERVAL } from '../setting'
 import { directionInDegrees, Tile } from '../types'
 import { signedModulo } from '../utils'
 import antSvgPath from './ant.svg'
 
 export class Ant {
+  private prevTimestamp = -1
+
   element?: HTMLImageElement
 
   get tileInFront() {
@@ -23,30 +26,41 @@ export class Ant {
 
   constructor(private grid: Grid<Hex>, public tile: Tile, public direction: directionInDegrees) {}
 
+  tick(timestamp: number) {
+    if (timestamp - this.prevTimestamp < ANT_TICK_INTERVAL) {
+      return
+    }
+
+    this.prevTimestamp = timestamp
+    const random = Math.random()
+    if (random < 0.12) {
+      random < 0.06 ? this.turnLeft() : this.turnRight()
+    } else {
+      this.move()
+    }
+  }
+
   render() {
     if (!this.element) {
       this.element = this.#createElement()
+      document.body.appendChild(this.element as HTMLImageElement)
     }
 
     this.element.style.top = `${this.tile.y}px`
     this.element.style.left = `${this.tile.x}px`
     this.element.style.transform = `rotate(${this.direction}deg)`
-    return this
   }
 
   move() {
     this.tile = this.tileInFront
-    return this
   }
 
   turnLeft() {
     this.direction -= 60
-    return this
   }
 
   turnRight() {
     this.direction += 60
-    return this
   }
 
   #createElement() {

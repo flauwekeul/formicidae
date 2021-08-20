@@ -1,23 +1,15 @@
-import { createHexPrototype, Grid } from 'honeycomb-grid'
-import { Ant } from './ant'
-import { ANT_SIZE_MODIFIER, ANT_TRANSITION_DURATION_IN_MS, TILE_SIZE } from './setting'
-import { Tile } from './types'
+import { Game } from './game'
 
-// setup
-const hexPrototype = createHexPrototype<Tile>({ dimensions: { width: TILE_SIZE, height: TILE_SIZE } })
-const grid = new Grid(hexPrototype)
-Object.entries({
-  '--ant-size': `${TILE_SIZE * ANT_SIZE_MODIFIER}px`,
-  '--ant-transition-duration': `${ANT_TRANSITION_DURATION_IN_MS}ms`,
-}).forEach(([key, value]) => {
-  document.documentElement.style.setProperty(key, value)
-})
+const game = new Game()
+game.init()
 
-const startTile = grid.getHex([20, 20])
-const ant = new Ant(grid, startTile, 90)
+const antAmount = 1
+const startTile = game.grid.getHex([-10, 40])
+for (let i = 0; i < antAmount; i++) {
+  game.addAnt(startTile)
+}
 
-ant.render()
-document.body.appendChild(ant.element as HTMLImageElement)
+const ant = game.ants[0]
 
 document.addEventListener('keyup', (event) => {
   switch (event.key) {
@@ -29,6 +21,12 @@ document.addEventListener('keyup', (event) => {
       break
     case 'ArrowRight':
       ant.turnRight()
+      break
+    case ' ':
+      game.hasStarted ? game.stop() : game.start()
+      break
+    case 'Enter':
+      ant.tick(performance.now())
       break
   }
 
