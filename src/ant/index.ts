@@ -1,8 +1,18 @@
-import { CompassDirection, Grid, Hex, neighborOf } from 'honeycomb-grid'
+import { CompassDirection, Grid, neighborOf } from 'honeycomb-grid'
 import { ANT_TICK_INTERVAL } from '../setting'
 import { directionInDegrees, Tile } from '../types'
 import { signedModulo } from '../utils'
 import antSvgPath from './ant.svg'
+
+// todo: this is shit, Honeycomb should offer a way to convert degrees to compass direction
+const DEGREES_TO_COMPASS_DIRECTION_MAP = {
+  30: CompassDirection.NE,
+  90: CompassDirection.E,
+  150: CompassDirection.SE,
+  210: CompassDirection.SW,
+  270: CompassDirection.W,
+  330: CompassDirection.NW,
+}
 
 export class Ant {
   private prevTimestamp = -1
@@ -10,21 +20,17 @@ export class Ant {
   element?: HTMLImageElement
 
   get tileInFront() {
-    // todo: this is shit, Honeycomb should solve this
     // the (degrees) direction can be negative, so a regular modulus won't do
-    const normalizedDegrees = signedModulo(this.direction, 360)
-    const compassDirection = {
-      30: CompassDirection.NE,
-      90: CompassDirection.E,
-      150: CompassDirection.SE,
-      210: CompassDirection.SW,
-      270: CompassDirection.W,
-      330: CompassDirection.NW,
-    }[normalizedDegrees] as CompassDirection
+    const normalizedDegrees = signedModulo(this.direction, 360) as directionInDegrees
+    const compassDirection = DEGREES_TO_COMPASS_DIRECTION_MAP[normalizedDegrees]
     return this.grid.getHex(neighborOf(this.tile, compassDirection))
   }
 
-  constructor(private grid: Grid<Hex>, public tile: Tile, public direction: directionInDegrees) {}
+  get isTileInFrontObstructed() {
+    return !this.grid.store.get(this.tileInFront.toString())
+  }
+
+  constructor(private grid: Grid<Tile>, public tile: Tile, public direction: directionInDegrees) {}
 
   tick(timestamp: number) {
     if (timestamp - this.prevTimestamp < ANT_TICK_INTERVAL) {
@@ -33,10 +39,10 @@ export class Ant {
 
     this.prevTimestamp = timestamp
     const random = Math.random()
-    if (random < 0.12) {
+    if (random < 0.12 || this.isTileInFrontObstructed) {
       random < 0.06 ? this.turnLeft() : this.turnRight()
     } else {
-      this.move()
+      this.walk()
     }
   }
 
@@ -51,7 +57,7 @@ export class Ant {
     this.element.style.transform = `rotate(${this.direction}deg)`
   }
 
-  move() {
+  walk() {
     this.tile = this.tileInFront
   }
 

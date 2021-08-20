@@ -1,4 +1,4 @@
-import { createHexPrototype, Grid } from 'honeycomb-grid'
+import { createHexPrototype, Grid, rectangle } from 'honeycomb-grid'
 import { Ant } from './ant'
 import { ANT_SIZE_MODIFIER, ANT_TRANSITION_DURATION_IN_MS, TILE_SIZE } from './setting'
 import { Tile } from './types'
@@ -8,9 +8,11 @@ export class Game {
   ants: Ant[] = []
   requestAnimationId: number | null = null
 
-  get hasStarted() {
+  get isRunning() {
     return !!this.requestAnimationId
   }
+
+  constructor(public gridWidth: number, public gridHeight: number) {}
 
   init() {
     this.#setStyles()
@@ -51,6 +53,6 @@ export class Game {
 
   #createGrid() {
     const hexPrototype = createHexPrototype<Tile>({ dimensions: { width: TILE_SIZE, height: TILE_SIZE } })
-    this.grid = new Grid(hexPrototype)
+    this.grid = new Grid(hexPrototype, rectangle({ width: this.gridWidth, height: this.gridHeight }))
   }
 }
