@@ -17,6 +17,8 @@ body {
   position: absolute;
   width: var(--ant-size);
   height: var(--ant-size);
+
+  /* disable this for better performance */
   transition:
     top var(--ant-transition-duration),
     left var(--ant-transition-duration),
