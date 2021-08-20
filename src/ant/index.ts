@@ -1,17 +1,28 @@
-import { Compass, CompassDirection, Grid, Hex, neighborOf } from 'honeycomb-grid'
+import { CompassDirection, Grid, Hex, neighborOf } from 'honeycomb-grid'
 import { ANT_SIZE_MODIFIER, TILE_SIZE } from '../setting'
-import { Tile } from '../types'
-import { directionToDegrees } from '../utils'
+import { directionInDegrees, Tile } from '../types'
+import { signedModulo } from '../utils'
 import antSvgPath from './ant.svg'
 
 export class Ant {
   element?: HTMLImageElement
 
   get tileInFront() {
-    return this.grid.getHex(neighborOf(this.tile, this.direction))
+    // todo: this is shit, Honeycomb should solve this
+    // the (degrees) direction can be negative, so a regular modulus won't do
+    const normalizedDegrees = signedModulo(this.direction, 360)
+    const compassDirection = {
+      30: CompassDirection.NE,
+      90: CompassDirection.E,
+      150: CompassDirection.SE,
+      210: CompassDirection.SW,
+      270: CompassDirection.W,
+      330: CompassDirection.NW,
+    }[normalizedDegrees] as CompassDirection
+    return this.grid.getHex(neighborOf(this.tile, compassDirection))
   }
 
-  constructor(private grid: Grid<Hex>, public tile: Tile, public direction: CompassDirection) {}
+  constructor(private grid: Grid<Hex>, public tile: Tile, public direction: directionInDegrees) {}
 
   render() {
     if (!this.element) {
@@ -20,8 +31,7 @@ export class Ant {
 
     this.element.style.top = `${this.tile.y}px`
     this.element.style.left = `${this.tile.x}px`
-    // todo: directionToDegrees() should be something of Honeycomb
-    this.element.style.transform = `rotate(${directionToDegrees(this.direction)}deg)`
+    this.element.style.transform = `rotate(${this.direction}deg)`
     return this
   }
 
@@ -31,16 +41,12 @@ export class Ant {
   }
 
   turnLeft() {
-    const newDirection = Compass.rotate(this.direction, -1)
-    // todo: this is shit, Honeycomb should solve this
-    this.direction = newDirection === 0 ? 7 : newDirection === 4 ? 3 : newDirection
+    this.direction -= 60
     return this
   }
 
   turnRight() {
-    const newDirection = Compass.rotate(this.direction, 1)
-    // todo: this is shit, Honeycomb should solve this
-    this.direction = newDirection === 0 ? 1 : newDirection === 4 ? 5 : newDirection
+    this.direction += 60
     return this
   }
 

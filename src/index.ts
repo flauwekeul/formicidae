@@ -1,4 +1,4 @@
-import { CompassDirection, createHexPrototype, Grid } from 'honeycomb-grid'
+import { createHexPrototype, Grid } from 'honeycomb-grid'
 import { Ant } from './ant'
 import { TILE_SIZE } from './setting'
 import { Tile } from './types'
@@ -7,7 +7,7 @@ const hexPrototype = createHexPrototype<Tile>({ dimensions: { width: TILE_SIZE, 
 const grid = new Grid(hexPrototype)
 
 const startTile = grid.getHex([20, 20])
-const ant = new Ant(grid, startTile, CompassDirection.W)
+const ant = new Ant(grid, startTile, 90)
 
 ant.render()
 document.body.appendChild(ant.element as HTMLImageElement)
