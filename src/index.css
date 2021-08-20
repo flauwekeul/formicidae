@@ -5,6 +5,7 @@
   --saffron: #e3b505ff;
   --cadet-blue: #56a3a6ff;
   --white: #ffff;
+  --ant-transition-duration: 0; /* set by JS */
 }
 
 body {
@@ -13,4 +14,8 @@ body {
 
 .ant {
   position: absolute;
+  transition:
+    top var(--ant-transition-duration),
+    left var(--ant-transition-duration),
+    transform var(--ant-transition-duration);
 }
