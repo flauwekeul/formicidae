@@ -6,16 +6,16 @@ export const randomSelect: Composite = (...tasks) => tasks[Math.floor(random() *
 
 export const select: Composite =
   (...tasks) =>
-  () =>
-    tasks.some((task) => task())
+  <T>(context: T) =>
+    tasks.some((task) => task.call(context, context))
 
 export const sequence: Composite =
   (...tasks) =>
-  () =>
-    tasks.every((task) => task())
+  <T>(context: T) =>
+    tasks.every((task) => task.call(context, context))
 
 export interface Task {
-  (): boolean
+  <T>(context: T): boolean
 }
 
 export interface Composite {

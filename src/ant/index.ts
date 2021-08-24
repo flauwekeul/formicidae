@@ -16,7 +16,7 @@ const DEGREES_TO_COMPASS_DIRECTION_MAP = {
 }
 
 export class Ant {
-  private prevTimestamp = -1
+  #prevTimestamp = -1
 
   element?: HTMLImageElement
 
@@ -27,19 +27,19 @@ export class Ant {
     return this.grid.getHex(neighborOf(this.tile, compassDirection))
   }
 
-  constructor(private grid: Grid<Tile>, public tile: Tile, public direction: directionInDegrees) {}
+  constructor(public grid: Grid<Tile>, public tile: Tile, public direction: directionInDegrees) {}
 
   tick(timestamp: number) {
-    if (timestamp - this.prevTimestamp < ANT_TICK_INTERVAL) {
+    if (timestamp - this.#prevTimestamp < ANT_TICK_INTERVAL) {
       return
     }
-    this.prevTimestamp = timestamp
+    this.#prevTimestamp = timestamp
 
     const sample = (probability: number) => () => Math.random() < probability
-    const randomTurn = randomSelect(this.turnLeft.bind(this), this.turnRight.bind(this))
+    const randomTurn = randomSelect(this.turnLeft, this.turnRight)
 
-    const task = select(sequence(select(sample(0.12)), randomTurn), this.walk.bind(this), randomTurn)
-    task()
+    const task = select(sequence(select(sample(0.12)), randomTurn), this.walk, randomTurn)
+    task(this)
   }
 
   render() {
