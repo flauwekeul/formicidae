@@ -1,4 +1,5 @@
 import { CompassDirection, Grid, neighborOf } from 'honeycomb-grid'
+import { randomSelect, select, sequence } from '../behaviorTree'
 import { ANT_TICK_INTERVAL } from '../setting'
 import { directionInDegrees, Tile } from '../types'
 import { signedModulo } from '../utils'
@@ -26,24 +27,19 @@ export class Ant {
     return this.grid.getHex(neighborOf(this.tile, compassDirection))
   }
 
-  get isTileInFrontObstructed() {
-    return !this.grid.store.get(this.tileInFront.toString())
-  }
-
   constructor(private grid: Grid<Tile>, public tile: Tile, public direction: directionInDegrees) {}
 
   tick(timestamp: number) {
     if (timestamp - this.prevTimestamp < ANT_TICK_INTERVAL) {
       return
     }
-
     this.prevTimestamp = timestamp
-    const random = Math.random()
-    if (random < 0.12 || this.isTileInFrontObstructed) {
-      random < 0.06 ? this.turnLeft() : this.turnRight()
-    } else {
-      this.walk()
-    }
+
+    const sample = (probability: number) => () => Math.random() < probability
+    const randomTurn = randomSelect(this.turnLeft.bind(this), this.turnRight.bind(this))
+
+    const task = select(sequence(select(sample(0.12)), randomTurn), this.walk.bind(this), randomTurn)
+    task()
   }
 
   render() {
@@ -58,15 +54,25 @@ export class Ant {
   }
 
   walk() {
+    if (!this.canWalk()) {
+      return false
+    }
     this.tile = this.tileInFront
+    return true
   }
 
   turnLeft() {
     this.direction -= 60
+    return true
   }
 
   turnRight() {
     this.direction += 60
+    return true
+  }
+
+  canWalk() {
+    return this.grid.store.get(this.tileInFront.toString())
   }
 
   #createElement() {
