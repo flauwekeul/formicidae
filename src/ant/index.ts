@@ -1,5 +1,5 @@
 import { ANT_TICK_INTERVAL } from '../setting'
-import { directionInDegrees, Tile } from '../types'
+import { Tile } from '../types'
 import { World } from '../world'
 import antSvgPath from './ant.svg'
 import { performTask } from './behavior'
@@ -13,8 +13,8 @@ export function createAnt({ world, tile, direction }: Omit<Ant, '_prevTimestamp'
   }
 }
 
-export function tileInFrontOf({ world, tile, direction }: Ant): Tile {
-  return world.neighborOfTile(tile, direction)
+export function tileInFront({ world, tile, direction }: Ant, offset: -1 | 0 | 1 = 0): Tile {
+  return world.neighborOfTile(tile, direction + offset * 60)
 }
 
 export function render(ant: Ant): Ant {
@@ -31,15 +31,15 @@ export function render(ant: Ant): Ant {
 }
 
 export function canWalk(ant: Ant): boolean {
-  const tileInFront = tileInFrontOf(ant)
-  return ant.world.tileExists(tileInFront) && !ant.world.isTileObstructed(tileInFront)
+  const tile = tileInFront(ant)
+  return ant.world.tileExists(tile) && !ant.world.isTileObstructed(tile)
 }
 
 export function walk(ant: Ant): boolean {
   if (!canWalk(ant)) {
     return false
   }
-  ant.tile = tileInFrontOf(ant)
+  ant.tile = tileInFront(ant)
   return true
 }
 
@@ -67,7 +67,7 @@ export function tick(ant: Ant, timestamp: number): Ant {
 export interface Ant {
   world: World
   tile: Tile
-  direction: directionInDegrees
+  direction: number
   element?: HTMLImageElement
   _prevTimestamp: number
 }
