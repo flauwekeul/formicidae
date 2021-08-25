@@ -32,4 +32,12 @@ body {
   height: var(--hole-size);
   border-radius: 999px;
   background-color: var(--eerie-black);
+  transform: translate(-50%, -50%);
+}
+
+.food {
+  position: absolute;
+  border-radius: 999px;
+  background-color: var(--saffron);
+  transform: translate(-50%, -50%);
 }

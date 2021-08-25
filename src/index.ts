@@ -10,6 +10,7 @@ const world = new World(80, 80)
 const game = new Game(world)
 
 world.addHole(world.getTile([2, 5]))
+world.addFood(world.getTile([40, 60]), 50)
 world.render()
 
 const selectedAnt = world.addAnt(world.nestHoles[0])
