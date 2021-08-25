@@ -1,8 +1,8 @@
 import { createHexPrototype, Grid, HexCoordinates, neighborOf, rectangle } from 'honeycomb-grid'
-import { Ant, createAnt } from './ant'
+import { createAnt } from './ant'
 import { DEGREES, DEGREES_TO_COMPASS_DIRECTION_MAP } from './constants'
 import { TILE_SIZE } from './setting'
-import { directionInDegrees, Tile } from './types'
+import { Ant, directionInDegrees, Tile } from './types'
 import { randomArrayItem, signedModulo } from './utils'
 
 export class World {

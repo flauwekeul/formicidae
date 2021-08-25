@@ -1,10 +1,9 @@
 import { ANT_TICK_INTERVAL } from '../setting'
-import { Tile } from '../types'
-import { World } from '../world'
+import { Ant, BaseAnt, Tile } from '../types'
 import antSvgPath from './ant.svg'
 import { performTask } from './behavior'
 
-export function createAnt({ world, tile, direction }: Omit<Ant, '_prevTimestamp'>): Ant {
+export function createAnt({ world, tile, direction }: BaseAnt): Ant {
   return {
     world,
     tile,
@@ -62,14 +61,6 @@ export function tick(ant: Ant, timestamp: number): Ant {
   performTask(ant)
 
   return ant
-}
-
-export interface Ant {
-  world: World
-  tile: Tile
-  direction: number
-  element?: HTMLImageElement
-  _prevTimestamp: number
 }
 
 // PRIVATES
