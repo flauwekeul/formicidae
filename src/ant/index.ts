@@ -1,24 +1,20 @@
-import { CompassDirection, Grid, neighborOf } from 'honeycomb-grid'
 import { ANT_TICK_INTERVAL } from '../setting'
 import { directionInDegrees, Tile } from '../types'
-import { signedModulo } from '../utils'
+import { World } from '../world'
 import antSvgPath from './ant.svg'
 import { performTask } from './behavior'
 
-export function createAnt({ grid, tile, direction }: Omit<Ant, '_prevTimestamp'>): Ant {
+export function createAnt({ world, tile, direction }: Omit<Ant, '_prevTimestamp'>): Ant {
   return {
-    grid,
+    world,
     tile,
     direction,
     _prevTimestamp: -1,
   }
 }
 
-export function tileInFrontOf({ direction, grid, tile }: Ant): Tile {
-  // the (degrees) direction can be negative, so a regular modulus won't do
-  const normalizedDegrees = signedModulo(direction, 360) as directionInDegrees
-  const compassDirection = DEGREES_TO_COMPASS_DIRECTION_MAP[normalizedDegrees]
-  return grid.getHex(neighborOf(tile, compassDirection))
+export function tileInFrontOf({ world, tile, direction }: Ant): Tile {
+  return world.neighborOfTile(tile, direction)
 }
 
 export function render(ant: Ant): Ant {
@@ -35,7 +31,7 @@ export function render(ant: Ant): Ant {
 }
 
 export function canWalk(ant: Ant): boolean {
-  return ant.grid.store.has(tileInFrontOf(ant).toString())
+  return ant.world.tileExists(tileInFrontOf(ant))
 }
 
 export function walk(ant: Ant): boolean {
@@ -68,7 +64,7 @@ export function tick(ant: Ant, timestamp: number): Ant {
 }
 
 export interface Ant {
-  grid: Grid<Tile>
+  world: World
   tile: Tile
   direction: directionInDegrees
   element?: HTMLImageElement
@@ -76,16 +72,6 @@ export interface Ant {
 }
 
 // PRIVATES
-
-// todo: this is shit, Honeycomb should offer a way to convert degrees to compass direction
-export const DEGREES_TO_COMPASS_DIRECTION_MAP = {
-  30: CompassDirection.NE,
-  90: CompassDirection.E,
-  150: CompassDirection.SE,
-  210: CompassDirection.SW,
-  270: CompassDirection.W,
-  330: CompassDirection.NW,
-}
 
 function createAntElement() {
   const element = document.createElement('img')

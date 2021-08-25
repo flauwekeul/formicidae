@@ -1,16 +1,17 @@
 import { render, tick, turnLeft, turnRight, walk } from './ant'
 import { Game } from './game'
+import { World } from './world'
 
-const game = new Game(80, 80)
-game.init()
+const world = new World(2, 2)
+const game = new Game(world)
 
-const maxAnts = 100
-const startTile = game.grid.getHex([20, 40])
+const maxAnts = 2
+const startTile = world.getTile([0, 0])
 const addAntIntervalInMs = 200
 let intervalId: NodeJS.Timer | void
 
-game.addAnt(startTile)
-const ant = game.ants[0]
+world.addAnt(startTile)
+const ant = world.ants[0]
 
 document.addEventListener('keyup', (event) => {
   switch (event.key) {
@@ -28,8 +29,8 @@ document.addEventListener('keyup', (event) => {
       intervalId = intervalId
         ? clearInterval(intervalId)
         : setInterval(() => {
-            if (game.ants.length < maxAnts) {
-              game.addAnt(startTile)
+            if (world.ants.length < maxAnts) {
+              world.addAnt(startTile)
             }
           }, addAntIntervalInMs)
       break
