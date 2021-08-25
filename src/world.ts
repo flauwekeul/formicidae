@@ -34,6 +34,10 @@ export class World {
     return this.#grid.store.has(tile.toString())
   }
 
+  isTileObstructed(tile: Tile): boolean {
+    return this.ants.some((ant) => ant.tile.equals(tile))
+  }
+
   getTile(coordinates: HexCoordinates): Tile {
     return this.#grid.getHex(coordinates)
   }

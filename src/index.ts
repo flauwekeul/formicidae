@@ -2,11 +2,11 @@ import { render, tick, turnLeft, turnRight, walk } from './ant'
 import { Game } from './game'
 import { World } from './world'
 
-const world = new World(2, 2)
+const world = new World(4, 4)
 const game = new Game(world)
 
-const maxAnts = 2
-const startTile = world.getTile([0, 0])
+const maxAnts = 3
+const startTile = world.getTile([1, 1])
 const addAntIntervalInMs = 200
 let intervalId: NodeJS.Timer | void
 

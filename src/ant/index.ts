@@ -31,7 +31,8 @@ export function render(ant: Ant): Ant {
 }
 
 export function canWalk(ant: Ant): boolean {
-  return ant.world.tileExists(tileInFrontOf(ant))
+  const tileInFront = tileInFrontOf(ant)
+  return ant.world.tileExists(tileInFront) && !ant.world.isTileObstructed(tileInFront)
 }
 
 export function walk(ant: Ant): boolean {
