@@ -1,28 +1,26 @@
-const random = Math.random
+import { randomArrayItem } from './utils'
 
-// const FALSE = () => false
-
-export const randomSelect: Composite = (...tasks) => tasks[Math.floor(random() * tasks.length)]
-
-export const select: Composite =
+const createComposite =
+  (fn: <T>(tasks: Task<T>[], context: T) => boolean): Composite =>
   (...tasks) =>
-  <T>(context: T) =>
-    tasks.some((task) => task.call(context, context))
+  (context) =>
+    fn(tasks, context)
 
-export const sequence: Composite =
-  (...tasks) =>
-  <T>(context: T) =>
-    tasks.every((task) => task.call(context, context))
+export const randomSelect = createComposite((tasks, context) => randomArrayItem(tasks)(context))
 
-export interface Task {
-  <T>(context: T): boolean
+export const select = createComposite((tasks, context) => tasks.some((task) => task(context)))
+
+export const sequence = createComposite((tasks, context) => tasks.every((task) => task(context)))
+
+export interface Task<T> {
+  (context: T): boolean
 }
 
 export interface Composite {
-  (...tasks: Task[]): Task
+  <T>(...tasks: Task<T>[]): Task<T>
 }
 
 export interface Decorator {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (task: Task, ...args: any[]): Task
+  <T>(task: Task<T>, ...args: any[]): Task<T>
 }

@@ -1,34 +1,42 @@
+import { render, tick, turnLeft, turnRight, walk } from './ant'
 import { Game } from './game'
 
 const game = new Game(80, 80)
 game.init()
 
-const antAmount = 100
-const startTile = game.grid.getHex([-10, 40])
-for (let i = 0; i < antAmount; i++) {
-  game.addAnt(startTile)
-}
+const maxAnts = 100
+const startTile = game.grid.getHex([20, 40])
+const addAntIntervalInMs = 200
+let intervalId: NodeJS.Timer | void
 
+game.addAnt(startTile)
 const ant = game.ants[0]
 
 document.addEventListener('keyup', (event) => {
   switch (event.key) {
     case 'ArrowUp':
-      ant.walk()
+      walk(ant)
       break
     case 'ArrowLeft':
-      ant.turnLeft()
+      turnLeft(ant)
       break
     case 'ArrowRight':
-      ant.turnRight()
+      turnRight(ant)
       break
     case ' ':
       game.isRunning ? game.stop() : game.start()
+      intervalId = intervalId
+        ? clearInterval(intervalId)
+        : setInterval(() => {
+            if (game.ants.length < maxAnts) {
+              game.addAnt(startTile)
+            }
+          }, addAntIntervalInMs)
       break
     case 'Enter':
-      ant.tick(performance.now())
+      tick(ant, performance.now())
       break
   }
 
-  ant.render()
+  render(ant)
 })
