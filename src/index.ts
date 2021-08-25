@@ -2,42 +2,45 @@ import { render, tick, turnLeft, turnRight, walk } from './ant'
 import { Game } from './game'
 import { World } from './world'
 
-const world = new World(4, 4)
-const game = new Game(world)
-
-const maxAnts = 3
-const startTile = world.getTile([1, 1])
-const addAntIntervalInMs = 200
+const maxAnts = 100
+const addAntIntervalInMs = 300
 let intervalId: NodeJS.Timer | void
 
-world.addAnt(startTile)
-const ant = world.ants[0]
+const world = new World(80, 80)
+const game = new Game(world)
+
+world.addHole(world.getTile([2, 5]))
+world.render()
+
+const selectedAnt = world.addAnt(world.nestHoles[0])
 
 document.addEventListener('keyup', (event) => {
+  if (event.key === ' ') {
+    game.isRunning ? game.stop() : game.start()
+    intervalId = intervalId
+      ? clearInterval(intervalId)
+      : setInterval(() => {
+          if (world.ants.length < maxAnts) {
+            world.addAnt(world.nestHoles[0])
+          }
+        }, addAntIntervalInMs)
+    return
+  }
+
   switch (event.key) {
     case 'ArrowUp':
-      walk(ant)
+      walk(selectedAnt)
       break
     case 'ArrowLeft':
-      turnLeft(ant)
+      turnLeft(selectedAnt)
       break
     case 'ArrowRight':
-      turnRight(ant)
-      break
-    case ' ':
-      game.isRunning ? game.stop() : game.start()
-      intervalId = intervalId
-        ? clearInterval(intervalId)
-        : setInterval(() => {
-            if (world.ants.length < maxAnts) {
-              world.addAnt(startTile)
-            }
-          }, addAntIntervalInMs)
+      turnRight(selectedAnt)
       break
     case 'Enter':
-      tick(ant, performance.now())
+      tick(selectedAnt, performance.now())
       break
   }
 
-  render(ant)
+  render(selectedAnt)
 })

@@ -35,6 +35,7 @@ export class Game {
     Object.entries({
       '--ant-size': `${TILE_SIZE * ANT_SIZE_MODIFIER}px`,
       '--ant-transition-duration': `${ANT_TRANSITION_DURATION_IN_MS}ms`,
+      '--hole-size': `${TILE_SIZE}px`,
     }).forEach(([key, value]) => {
       document.documentElement.style.setProperty(key, value)
     })

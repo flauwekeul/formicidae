@@ -9,14 +9,21 @@ export class World {
   #grid: Grid<Tile>
 
   ants: Ant[] = []
+  nestHoles: Tile[] = []
 
   constructor(public gridWidth: number, public gridHeight: number) {
     const hexPrototype = createHexPrototype<Tile>({ dimensions: { width: TILE_SIZE, height: TILE_SIZE } })
     this.#grid = new Grid(hexPrototype, rectangle({ width: this.gridWidth, height: this.gridHeight }))
   }
 
-  addAnt(tile: Tile): void {
-    this.ants.push(createAnt({ world: this, tile, direction: randomArrayItem(DEGREES) }))
+  addAnt(tile: Tile): Ant {
+    const ant = createAnt({ world: this, tile, direction: randomArrayItem(DEGREES) })
+    this.ants.push(ant)
+    return ant
+  }
+
+  addHole(tile: Tile): void {
+    this.nestHoles.push(tile)
   }
 
   tileExists(tile: Tile): boolean {
@@ -36,5 +43,20 @@ export class World {
     const normalizedDegrees = signedModulo(direction, 360) as directionInDegrees
     const compassDirection = DEGREES_TO_COMPASS_DIRECTION_MAP[normalizedDegrees]
     return this.getTile(neighborOf(tile, compassDirection))
+  }
+
+  render(): void {
+    this.nestHoles.forEach((hole) => {
+      const element = this.#createHoleElement()
+      document.body.appendChild(element)
+      element.style.top = `${hole.y}px`
+      element.style.left = `${hole.x}px`
+    })
+  }
+
+  #createHoleElement(): HTMLDivElement {
+    const element = document.createElement('div')
+    element.classList.add('hole')
+    return element
   }
 }

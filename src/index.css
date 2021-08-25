@@ -7,12 +7,14 @@
   --white: #ffff;
   --ant-size: inital; /* set by JS */
   --ant-transition-duration: inital; /* set by JS */
+  --hole-size: inital; /* set by JS */
 }
 
 body {
   margin: 0;
 }
 
+/* fixme: because ants are slightly bigger than tiles, their position should be corrected */
 .ant {
   position: absolute;
   width: var(--ant-size);
@@ -23,4 +25,12 @@ body {
     top var(--ant-transition-duration),
     left var(--ant-transition-duration),
     transform var(--ant-transition-duration);
+}
+
+.hole {
+  position: absolute;
+  width: var(--hole-size);
+  height: var(--hole-size);
+  border-radius: 999px;
+  background-color: var(--eerie-black);
 }
