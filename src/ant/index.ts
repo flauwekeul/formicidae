@@ -24,7 +24,7 @@ export function render(ant: Ant): Ant {
 
   ant.element.style.top = `${ant.tile.y}px`
   ant.element.style.left = `${ant.tile.x}px`
-  ant.element.style.transform = `rotate(${ant.direction}deg)`
+  ant.element.style.transform = `translate(-50%, -50%) rotate(${ant.direction}deg)`
 
   return ant
 }
