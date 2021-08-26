@@ -16,9 +16,15 @@ export interface Ant extends BaseAnt {
 
 export type directionInDegrees = 30 | 90 | 150 | 210 | 270 | 330
 
+export interface NestHole {
+  tile: Tile
+  element?: HTMLDivElement
+}
+
 export interface Food {
   tile: Tile
   amount: number
+  element?: HTMLDivElement
 }
 
 export interface Pheromone {

@@ -1,15 +1,21 @@
 import { createHexPrototype, Grid, HexCoordinates, neighborOf, rectangle } from 'honeycomb-grid'
-import { createAnt } from './ant'
+import { createAnt, render } from './ant'
 import { DEGREES, DEGREES_TO_COMPASS_DIRECTION_MAP } from './constants'
-import { ANT_PHEROMONE_DROP_AMOUNT, PHEROMONE_DECAY_PER_MS, PHEROMONE_MAX, TILE_SIZE } from './setting'
-import { Ant, Food, Pheromone, pheromoneType, Tile } from './types'
+import {
+  ANT_PHEROMONE_DROP_AMOUNT,
+  FOOD_MAX_PER_TILE,
+  PHEROMONE_DECAY_PER_MS,
+  PHEROMONE_MAX,
+  TILE_SIZE,
+} from './setting'
+import { Ant, Food, NestHole, Pheromone, pheromoneType, Tile } from './types'
 import { normalizeDirection, randomArrayItem } from './utils'
 
 export class World {
   #grid: Grid<Tile>
 
   ants: Ant[] = []
-  nestHoles: Tile[] = []
+  nestHoles: NestHole[] = []
   foods: Food[] = []
   pheromones = new Map<Tile, Pheromone>()
 
@@ -25,7 +31,7 @@ export class World {
   }
 
   addHole(tile: Tile): void {
-    this.nestHoles.push(tile)
+    this.nestHoles.push({ tile })
   }
 
   addFood(tile: Tile, amount: number): void {
@@ -65,37 +71,42 @@ export class World {
   render(): void {
     this.#renderNestHoles()
     this.#renderFoods()
+    this.#renderAnts()
   }
 
   #renderNestHoles(): void {
     this.nestHoles.forEach((hole) => {
-      const element = this.#createHoleElement()
-      document.body.appendChild(element)
-      element.style.top = `${hole.y}px`
-      element.style.left = `${hole.x}px`
+      if (!hole.element) {
+        hole.element = this.#createElement('div', ['hole'])
+        document.body.appendChild(hole.element)
+        hole.element.style.top = `${hole.tile.y}px`
+        hole.element.style.left = `${hole.tile.x}px`
+      }
     })
   }
 
   #renderFoods(): void {
-    this.foods.forEach(({ tile, amount }) => {
-      const element = this.#createFoodElement()
-      document.body.appendChild(element)
-      element.style.width = `${amount * (TILE_SIZE / 100)}px`
-      element.style.height = `${amount * (TILE_SIZE / 100)}px`
-      element.style.top = `${tile.y}px`
-      element.style.left = `${tile.x}px`
+    this.foods.forEach((food) => {
+      if (!food.element) {
+        food.element = this.#createElement('div', ['food'])
+        document.body.appendChild(food.element)
+        food.element.style.top = `${food.tile.y}px`
+        food.element.style.left = `${food.tile.x}px`
+      }
+      food.element.style.width = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
+      food.element.style.height = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
     })
   }
 
-  #createHoleElement(): HTMLDivElement {
-    const element = document.createElement('div')
-    element.classList.add('hole')
-    return element
+  #renderAnts(): void {
+    this.ants.forEach((ant) => {
+      render(ant)
+    })
   }
 
-  #createFoodElement(): HTMLDivElement {
-    const element = document.createElement('div')
-    element.classList.add('food')
+  #createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, classes: string[] = []): HTMLElementTagNameMap[K] {
+    const element = document.createElement(tagName)
+    element.classList.add(...classes)
     return element
   }
 

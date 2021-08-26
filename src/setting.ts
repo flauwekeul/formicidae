@@ -8,3 +8,5 @@ export const ANT_PHEROMONE_DROP_AMOUNT = 50
 
 export const PHEROMONE_MAX = 1000
 export const PHEROMONE_DECAY_PER_MS = 0.02
+
+export const FOOD_MAX_PER_TILE = 100
