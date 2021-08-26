@@ -4,4 +4,4 @@ import { sample } from '../utils'
 
 const randomTurn = randomSelect(turnLeft, turnRight)
 
-export const performTask = select(sequence(sample(0.12), randomTurn), sequence(walk, dropPheromone), randomTurn)
+export const tick = select(sequence(sample(0.12), randomTurn), sequence(walk, dropPheromone), randomTurn)

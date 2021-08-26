@@ -1,12 +1,15 @@
 import { render, tick } from './ant'
-import { ANT_SIZE_MODIFIER, ANT_TRANSITION_DURATION_IN_MS, TILE_SIZE } from './setting'
+import { ANT_SIZE_MODIFIER, ANT_TRANSITION_DURATION_IN_MS, TICK_INTERVAL_IN_MS, TILE_SIZE } from './setting'
+import { tickListener } from './types'
 import { World } from './world'
 
 export class Game {
-  requestAnimationId: number | null = null
+  #requestAnimationId: number | null = null
+  #prevTimestamp = 0
+  #tickListeners: tickListener[] = []
 
   get isRunning(): boolean {
-    return !!this.requestAnimationId
+    return !!this.#requestAnimationId
   }
 
   constructor(public world: World) {
@@ -14,21 +17,30 @@ export class Game {
   }
 
   start(): void {
-    this.requestAnimationId = requestAnimationFrame(this.tick.bind(this))
+    this.#requestAnimationId = requestAnimationFrame(this.tick.bind(this))
   }
 
   stop(): void {
-    if (this.requestAnimationId) {
-      cancelAnimationFrame(this.requestAnimationId)
-      this.requestAnimationId = null
+    if (this.#requestAnimationId) {
+      cancelAnimationFrame(this.#requestAnimationId)
+      this.#requestAnimationId = null
     }
   }
 
   tick(timestamp: number): void {
-    this.world.ants.forEach((ant) => {
-      render(tick(ant, timestamp))
-    })
+    if (performance.now() - this.#prevTimestamp > TICK_INTERVAL_IN_MS) {
+      this.#prevTimestamp = timestamp
+      this.world.ants.forEach((ant) => {
+        tick(ant)
+        render(ant)
+      })
+      this.#tickListeners.forEach((listener) => listener(this, timestamp))
+    }
     this.start()
+  }
+
+  onTick(listener: tickListener): void {
+    this.#tickListeners.push(listener)
   }
 
   #setStyles(): void {

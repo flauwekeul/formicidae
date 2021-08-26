@@ -1,4 +1,5 @@
 import { Hex } from 'honeycomb-grid'
+import { Game } from './game'
 import { World } from './world'
 
 export type Tile = Hex
@@ -11,7 +12,6 @@ export interface BaseAnt {
 
 export interface Ant extends BaseAnt {
   element?: HTMLImageElement
-  _prevTimestamp: number
 }
 
 export type directionInDegrees = 30 | 90 | 150 | 210 | 270 | 330
@@ -29,3 +29,5 @@ export interface Pheromone {
 }
 
 export type pheromoneType = 'nest' | 'food'
+
+export type tickListener = (game: Game, timestamp: number) => void

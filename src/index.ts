@@ -39,7 +39,7 @@ document.addEventListener('keyup', (event) => {
       turnRight(selectedAnt)
       break
     case 'Enter':
-      tick(selectedAnt, performance.now())
+      tick(selectedAnt)
       break
   }
 
