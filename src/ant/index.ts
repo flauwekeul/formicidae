@@ -52,6 +52,11 @@ export function turnRight(ant: Ant): true {
   return true
 }
 
+export function dropPheromone({ world, tile, direction }: Ant): true {
+  world.addPheromone('nest', tile, direction)
+  return true
+}
+
 export function tick(ant: Ant, timestamp: number): Ant {
   if (timestamp - ant._prevTimestamp < ANT_TICK_INTERVAL) {
     return ant

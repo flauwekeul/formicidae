@@ -20,3 +20,12 @@ export interface Food {
   tile: Tile
   amount: number
 }
+
+export interface Pheromone {
+  type: pheromoneType
+  amount: number
+  timestamp: number
+  direction: directionInDegrees
+}
+
+export type pheromoneType = 'nest' | 'food'
