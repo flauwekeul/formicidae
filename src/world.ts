@@ -9,7 +9,7 @@ import {
   TILE_SIZE,
 } from './setting'
 import { Ant, Food, NestHole, Pheromone, pheromoneType, Tile } from './types'
-import { normalizeDirection, randomArrayItem } from './utils'
+import { createElement, normalizeDirection, randomArrayItem } from './utils'
 
 export class World {
   #grid: Grid<Tile>
@@ -71,14 +71,14 @@ export class World {
   render(): void {
     this.#renderNestHoles()
     this.#renderFoods()
+    this.#renderPheromones()
     this.#renderAnts()
   }
 
   #renderNestHoles(): void {
     this.nestHoles.forEach((hole) => {
       if (!hole.element) {
-        hole.element = this.#createElement('div', ['hole'])
-        document.body.appendChild(hole.element)
+        hole.element = createElement('div', { className: 'hole' })
         hole.element.style.top = `${hole.tile.y}px`
         hole.element.style.left = `${hole.tile.x}px`
       }
@@ -88,8 +88,7 @@ export class World {
   #renderFoods(): void {
     this.foods.forEach((food) => {
       if (!food.element) {
-        food.element = this.#createElement('div', ['food'])
-        document.body.appendChild(food.element)
+        food.element = createElement('div', { className: 'food' })
         food.element.style.top = `${food.tile.y}px`
         food.element.style.left = `${food.tile.x}px`
       }
@@ -98,16 +97,21 @@ export class World {
     })
   }
 
+  #renderPheromones(): void {
+    this.pheromones.forEach((pheromone, tile) => {
+      if (!pheromone.element) {
+        pheromone.element = createElement('div', { className: 'pheromone' })
+        pheromone.element.style.top = `${tile.y}px`
+        pheromone.element.style.left = `${tile.x}px`
+      }
+      pheromone.element.style.opacity = `${pheromone.amount / PHEROMONE_MAX}`
+    })
+  }
+
   #renderAnts(): void {
     this.ants.forEach((ant) => {
       render(ant)
     })
-  }
-
-  #createElement<K extends keyof HTMLElementTagNameMap>(tagName: K, classes: string[] = []): HTMLElementTagNameMap[K] {
-    const element = document.createElement(tagName)
-    element.classList.add(...classes)
-    return element
   }
 
   #nextPheromoneAmount({ amount, timestamp }: Pheromone): number {

@@ -1,4 +1,5 @@
 import { Ant, BaseAnt, Tile } from '../types'
+import { createElement } from '../utils'
 import antSvgPath from './ant.svg'
 
 export function createAnt({ world, tile, direction }: BaseAnt): Ant {
@@ -15,8 +16,7 @@ export function tileInFront({ world, tile, direction }: Ant, offset: -1 | 0 | 1 
 
 export function render(ant: Ant): Ant {
   if (!ant.element) {
-    ant.element = createAntElement()
-    document.body.appendChild(ant.element as HTMLImageElement)
+    ant.element = createElement('img', { className: 'ant', src: antSvgPath })
   }
 
   ant.element.style.top = `${ant.tile.y}px`
@@ -52,13 +52,4 @@ export function turnRight(ant: Ant): true {
 export function dropPheromone({ world, tile, direction }: Ant): true {
   world.addPheromone('nest', tile, direction)
   return true
-}
-
-// PRIVATES
-
-function createAntElement() {
-  const element = document.createElement('img')
-  element.setAttribute('src', antSvgPath)
-  element.classList.add('ant')
-  return element
 }

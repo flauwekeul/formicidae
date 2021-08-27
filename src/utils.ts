@@ -16,3 +16,17 @@ export function normalizeDirection(direction: number): directionInDegrees {
   // the (degrees) direction can be negative, so a regular modulus won't do
   return signedModulo(direction, 360) as directionInDegrees
 }
+
+export function createElement<K extends keyof HTMLElementTagNameMap>(
+  tagName: K,
+  props?: Record<string, unknown>,
+): HTMLElementTagNameMap[K] {
+  const element = document.createElement(tagName)
+  if (props) {
+    Object.entries(props).forEach(([key, value]) => {
+      element[key as keyof HTMLElementTagNameMap[K]] = value as HTMLElementTagNameMap[K][keyof HTMLElementTagNameMap[K]]
+    })
+  }
+  document.body.appendChild(element)
+  return element
+}

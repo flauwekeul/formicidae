@@ -32,6 +32,7 @@ export interface Pheromone {
   amount: number
   timestamp: number
   direction: directionInDegrees
+  element?: HTMLDivElement
 }
 
 export type pheromoneType = 'nest' | 'food'
