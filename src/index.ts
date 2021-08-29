@@ -1,4 +1,3 @@
-import { render, tick, turnLeft, turnRight, walk } from './ant'
 import { Game } from './game'
 import { FOOD_MAX_PER_TILE } from './setting'
 import { World } from './world'
@@ -10,13 +9,8 @@ let intervalId: NodeJS.Timer | void
 const world = new World(80, 80)
 const game = new Game(world)
 
-world.addHole(world.getTile([2, 5]))
+world.addNestHole(world.getTile([2, 5]))
 world.addFood(world.getTile([40, 60]), FOOD_MAX_PER_TILE)
-
-world.render()
-game.onTick(() => world.render())
-
-const selectedAnt = world.addAnt(world.nestHoles[0].tile)
 
 document.addEventListener('keyup', (event) => {
   if (event.key === ' ') {
@@ -30,23 +24,25 @@ document.addEventListener('keyup', (event) => {
         }, addAntIntervalInMs)
     return
   }
-
-  switch (event.key) {
-    case 'ArrowUp':
-      walk(selectedAnt)
-      render(selectedAnt)
-      break
-    case 'ArrowLeft':
-      turnLeft(selectedAnt)
-      render(selectedAnt)
-      break
-    case 'ArrowRight':
-      turnRight(selectedAnt)
-      render(selectedAnt)
-      break
-    case 'Enter':
-      tick(selectedAnt)
-      render(selectedAnt)
-      break
-  }
 })
+
+// const selectedAnt = world.addAnt(world.nestHoles[0].tile)
+// document.addEventListener('keyup', (event) => {
+//   switch (event.key) {
+//     case 'ArrowUp':
+//       walk(selectedAnt)
+//       renderUpdate(selectedAnt)
+//       break
+//     case 'ArrowLeft':
+//       turnLeft(selectedAnt)
+//       renderUpdate(selectedAnt)
+//       break
+//     case 'ArrowRight':
+//       turnRight(selectedAnt)
+//       renderUpdate(selectedAnt)
+//       break
+//     case 'Enter':
+//       world.tick()
+//       break
+//   }
+// })

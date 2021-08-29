@@ -1,10 +1,10 @@
 import { createHexPrototype, Grid, HexCoordinates, neighborOf, rectangle } from 'honeycomb-grid'
-import { createAnt, render } from './ant'
+import { createAnt, render, renderUpdate, tick } from './ant'
 import { DEGREES, DEGREES_TO_COMPASS_DIRECTION_MAP } from './constants'
 import {
   ANT_PHEROMONE_DROP_AMOUNT,
   FOOD_MAX_PER_TILE,
-  PHEROMONE_DECAY_PER_MS,
+  PHEROMONE_DECAY_PER_TICK,
   PHEROMONE_MAX,
   TILE_SIZE,
 } from './setting'
@@ -24,30 +24,52 @@ export class World {
     this.#grid = new Grid(hexPrototype, rectangle({ width: this.gridWidth, height: this.gridHeight }))
   }
 
+  tick(): void {
+    this.ants.forEach((ant) => {
+      tick(ant)
+      renderUpdate(ant)
+    })
+    this.#tickPheromones()
+    this.#renderUpdatePheromones()
+    this.#renderUpdateFoods()
+  }
+
   addAnt(tile: Tile): Ant {
     const ant = createAnt({ world: this, tile, direction: randomArrayItem(DEGREES) })
+    render(ant)
     this.ants.push(ant)
     return ant
   }
 
-  addHole(tile: Tile): void {
-    this.nestHoles.push({ tile })
+  addNestHole(tile: Tile): void {
+    const element = createElement('div', { className: 'hole' })
+    element.style.top = `${tile.y}px`
+    element.style.left = `${tile.x}px`
+    this.nestHoles.push({ tile, element })
   }
 
   addFood(tile: Tile, amount: number): void {
-    this.foods.push({ tile, amount })
+    const element = createElement('div', { className: 'food' })
+    element.style.top = `${tile.y}px`
+    element.style.left = `${tile.x}px`
+    this.foods.push({ tile, amount, element })
+    this.#renderUpdateFoods()
   }
 
   addPheromone(type: pheromoneType, tile: Tile, direction: number): void {
     const pheromone = this.pheromones.get(tile)
-    const amount = pheromone ? this.#nextPheromoneAmount(pheromone) : ANT_PHEROMONE_DROP_AMOUNT
+    const amount = ANT_PHEROMONE_DROP_AMOUNT + (pheromone?.amount ?? 0)
+    const element = pheromone?.element ?? createElement('div', { className: 'pheromone' })
+    element.style.top = `${tile.y}px`
+    element.style.left = `${tile.x}px`
     this.pheromones.set(tile, {
       type,
       amount,
-      timestamp: Date.now(),
       // override any previous direction
       direction: normalizeDirection(direction),
+      element,
     })
+    this.#renderUpdatePheromones()
   }
 
   tileExists(tile: Tile): boolean {
@@ -68,55 +90,33 @@ export class World {
     return this.getTile(neighborOf(tile, compassDirection))
   }
 
-  render(): void {
-    this.#renderNestHoles()
-    this.#renderFoods()
-    this.#renderPheromones()
-    this.#renderAnts()
-  }
-
-  #renderNestHoles(): void {
-    this.nestHoles.forEach((hole) => {
-      if (!hole.element) {
-        hole.element = createElement('div', { className: 'hole' })
-        hole.element.style.top = `${hole.tile.y}px`
-        hole.element.style.left = `${hole.tile.x}px`
-      }
-    })
-  }
-
-  #renderFoods(): void {
+  #renderUpdateFoods(): void {
     this.foods.forEach((food) => {
       if (!food.element) {
-        food.element = createElement('div', { className: 'food' })
-        food.element.style.top = `${food.tile.y}px`
-        food.element.style.left = `${food.tile.x}px`
+        return
       }
       food.element.style.width = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
       food.element.style.height = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
     })
   }
 
-  #renderPheromones(): void {
+  #tickPheromones(): void {
     this.pheromones.forEach((pheromone, tile) => {
+      const amount = Math.min(PHEROMONE_MAX, pheromone.amount - PHEROMONE_DECAY_PER_TICK)
+      if (amount > 0) {
+        pheromone.amount = amount
+      } else {
+        this.pheromones.delete(tile)
+      }
+    })
+  }
+
+  #renderUpdatePheromones(): void {
+    this.pheromones.forEach((pheromone) => {
       if (!pheromone.element) {
-        pheromone.element = createElement('div', { className: 'pheromone' })
-        pheromone.element.style.top = `${tile.y}px`
-        pheromone.element.style.left = `${tile.x}px`
+        return
       }
       pheromone.element.style.opacity = `${pheromone.amount / PHEROMONE_MAX}`
     })
-  }
-
-  #renderAnts(): void {
-    this.ants.forEach((ant) => {
-      render(ant)
-    })
-  }
-
-  #nextPheromoneAmount({ amount, timestamp }: Pheromone): number {
-    // todo: use _prevTimestamp?
-    const decay = (Date.now() - timestamp) * PHEROMONE_DECAY_PER_MS
-    return Math.min(PHEROMONE_MAX, Math.max(0, amount + ANT_PHEROMONE_DROP_AMOUNT - decay))
   }
 }

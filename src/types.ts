@@ -1,5 +1,4 @@
 import { Hex } from 'honeycomb-grid'
-import { Game } from './game'
 import { World } from './world'
 
 export type Tile = Hex
@@ -30,11 +29,8 @@ export interface Food {
 export interface Pheromone {
   type: pheromoneType
   amount: number
-  timestamp: number
   direction: directionInDegrees
   element?: HTMLDivElement
 }
 
 export type pheromoneType = 'nest' | 'food'
-
-export type tickListener = (game: Game, timestamp: number) => void
