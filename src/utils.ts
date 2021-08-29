@@ -30,3 +30,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   document.body.appendChild(element)
   return element
 }
+
+export function updateStyle(element: HTMLElement, styles: Record<string, string>): void {
+  Object.assign(element.style, styles)
+}

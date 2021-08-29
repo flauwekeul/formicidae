@@ -1,7 +1,7 @@
-import { render, renderUpdate } from './ant'
+import antSvgPath from './ant/ant.svg'
 import { FOOD_MAX_PER_TILE, PHEROMONE_MAX, TILE_SIZE } from './setting'
 import { Ant, Food, NestHole, Pheromone, RenderOptions } from './types'
-import { createElement } from './utils'
+import { createElement, updateStyle } from './utils'
 
 export class Renderer {
   options: RenderOptions = {
@@ -18,22 +18,28 @@ export class Renderer {
     if (!this.options.renderAnts) {
       return
     }
-    render(ant)
+    ant.element = createElement('img', { className: 'ant', src: antSvgPath })
     this.updateAnt(ant)
   }
 
   updateAnt(ant: Ant): void {
-    if (!this.options.renderAnts) {
+    if (!this.options.renderAnts || !ant.element) {
       return
     }
-    renderUpdate(ant)
+    updateStyle(ant.element, {
+      top: `${ant.tile.y}px`,
+      left: `${ant.tile.x}px`,
+      transform: `translate(-50%, -50%) rotate(${ant.direction}deg)`,
+    })
   }
 
-  renderNestHole({ tile }: NestHole): void {
-    // todo: make createElement accept a style object
+  renderNestHole(nestHole: NestHole): void {
     const element = createElement('div', { className: 'hole' })
-    element.style.top = `${tile.y}px`
-    element.style.left = `${tile.x}px`
+    updateStyle(element, {
+      top: `${nestHole.tile.y}px`,
+      left: `${nestHole.tile.x}px`,
+    })
+    nestHole.element = element
   }
 
   renderFood(food: Food): void {
@@ -41,8 +47,10 @@ export class Renderer {
       return
     }
     const element = createElement('div', { className: 'food' })
-    element.style.top = `${food.tile.y}px`
-    element.style.left = `${food.tile.x}px`
+    updateStyle(element, {
+      top: `${food.tile.y}px`,
+      left: `${food.tile.x}px`,
+    })
     food.element = element
     this.updateFood(food)
   }
@@ -51,8 +59,10 @@ export class Renderer {
     if (!this.options.renderFoods || !food.element) {
       return
     }
-    food.element.style.width = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
-    food.element.style.height = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
+    updateStyle(food.element, {
+      width: `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`,
+      height: `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`,
+    })
   }
 
   renderPheromone(pheromone: Pheromone): void {
@@ -60,8 +70,10 @@ export class Renderer {
       return
     }
     const element = pheromone?.element ?? createElement('div', { className: 'pheromone' })
-    element.style.top = `${pheromone.tile.y}px`
-    element.style.left = `${pheromone.tile.x}px`
+    updateStyle(element, {
+      top: `${pheromone.tile.y}px`,
+      left: `${pheromone.tile.x}px`,
+    })
     pheromone.element = element
     this.updatePheromone(pheromone)
   }
@@ -70,6 +82,6 @@ export class Renderer {
     if (!this.options.renderPheromones || !pheromone.element) {
       return
     }
-    pheromone.element.style.opacity = `${pheromone.amount / PHEROMONE_MAX}`
+    updateStyle(pheromone.element, { opacity: `${pheromone.amount / PHEROMONE_MAX}` })
   }
 }
