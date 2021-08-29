@@ -3,13 +3,10 @@ import { World } from './world'
 
 export type Tile = Hex
 
-export interface BaseAnt {
+export interface Ant {
   world: World
   tile: Tile
   direction: number
-}
-
-export interface Ant extends BaseAnt {
   element?: HTMLImageElement
 }
 
@@ -27,6 +24,7 @@ export interface Food {
 }
 
 export interface Pheromone {
+  tile: Tile
   type: pheromoneType
   amount: number
   direction: directionInDegrees
@@ -34,3 +32,9 @@ export interface Pheromone {
 }
 
 export type pheromoneType = 'nest' | 'food'
+
+export interface RenderOptions {
+  renderAnts: boolean
+  renderFoods: boolean
+  renderPheromones: boolean
+}

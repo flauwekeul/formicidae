@@ -1,8 +1,8 @@
-import { Ant, BaseAnt, Tile } from '../types'
+import { Ant, Tile } from '../types'
 import { createElement } from '../utils'
 import antSvgPath from './ant.svg'
 
-export function createAnt({ world, tile, direction }: BaseAnt): Ant {
+export function createAnt({ world, tile, direction }: Ant): Ant {
   return {
     world,
     tile,

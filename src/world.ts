@@ -1,15 +1,10 @@
 import { createHexPrototype, Grid, HexCoordinates, neighborOf, rectangle } from 'honeycomb-grid'
-import { createAnt, render, renderUpdate, tick } from './ant'
+import { createAnt, tick } from './ant'
 import { DEGREES, DEGREES_TO_COMPASS_DIRECTION_MAP } from './constants'
-import {
-  ANT_PHEROMONE_DROP_AMOUNT,
-  FOOD_MAX_PER_TILE,
-  PHEROMONE_DECAY_PER_TICK,
-  PHEROMONE_MAX,
-  TILE_SIZE,
-} from './setting'
+import { Renderer } from './renderer'
+import { ANT_PHEROMONE_DROP_AMOUNT, PHEROMONE_DECAY_PER_TICK, PHEROMONE_MAX, TILE_SIZE } from './setting'
 import { Ant, Food, NestHole, Pheromone, pheromoneType, Tile } from './types'
-import { createElement, normalizeDirection, randomArrayItem } from './utils'
+import { normalizeDirection, randomArrayItem } from './utils'
 
 export class World {
   #grid: Grid<Tile>
@@ -17,59 +12,49 @@ export class World {
   ants: Ant[] = []
   nestHoles: NestHole[] = []
   foods: Food[] = []
-  pheromones = new Map<Tile, Pheromone>()
+  pheromones = new Map<string, Pheromone>()
 
-  constructor(public gridWidth: number, public gridHeight: number) {
+  constructor(public gridWidth: number, public gridHeight: number, public renderer?: Renderer) {
     const hexPrototype = createHexPrototype<Tile>({ dimensions: { width: TILE_SIZE, height: TILE_SIZE } })
     this.#grid = new Grid(hexPrototype, rectangle({ width: this.gridWidth, height: this.gridHeight }))
   }
 
   tick(): void {
-    this.ants.forEach((ant) => {
-      tick(ant)
-      renderUpdate(ant)
-    })
+    this.#tickAnts()
     this.#tickPheromones()
-    this.#renderUpdatePheromones()
-    this.#renderUpdateFoods()
   }
 
   addAnt(tile: Tile): Ant {
     const ant = createAnt({ world: this, tile, direction: randomArrayItem(DEGREES) })
-    render(ant)
+    this.renderer?.renderAnt(ant)
     this.ants.push(ant)
     return ant
   }
 
   addNestHole(tile: Tile): void {
-    const element = createElement('div', { className: 'hole' })
-    element.style.top = `${tile.y}px`
-    element.style.left = `${tile.x}px`
-    this.nestHoles.push({ tile, element })
+    const nestHole: NestHole = { tile }
+    this.renderer?.renderNestHole(nestHole)
+    this.nestHoles.push(nestHole)
   }
 
   addFood(tile: Tile, amount: number): void {
-    const element = createElement('div', { className: 'food' })
-    element.style.top = `${tile.y}px`
-    element.style.left = `${tile.x}px`
-    this.foods.push({ tile, amount, element })
-    this.#renderUpdateFoods()
+    const food: Food = { tile, amount }
+    this.renderer?.renderFood(food)
+    this.foods.push(food)
   }
 
   addPheromone(type: pheromoneType, tile: Tile, direction: number): void {
-    const pheromone = this.pheromones.get(tile)
-    const amount = ANT_PHEROMONE_DROP_AMOUNT + (pheromone?.amount ?? 0)
-    const element = pheromone?.element ?? createElement('div', { className: 'pheromone' })
-    element.style.top = `${tile.y}px`
-    element.style.left = `${tile.x}px`
-    this.pheromones.set(tile, {
+    const id = tile.toString()
+    const amount = ANT_PHEROMONE_DROP_AMOUNT + (this.pheromones.get(id)?.amount ?? 0)
+    const pheromone: Pheromone = {
+      tile,
       type,
       amount,
       // override any previous direction
       direction: normalizeDirection(direction),
-      element,
-    })
-    this.#renderUpdatePheromones()
+    }
+    this.renderer?.renderPheromone(pheromone)
+    this.pheromones.set(id, pheromone)
   }
 
   tileExists(tile: Tile): boolean {
@@ -90,13 +75,10 @@ export class World {
     return this.getTile(neighborOf(tile, compassDirection))
   }
 
-  #renderUpdateFoods(): void {
-    this.foods.forEach((food) => {
-      if (!food.element) {
-        return
-      }
-      food.element.style.width = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
-      food.element.style.height = `${food.amount * (TILE_SIZE / FOOD_MAX_PER_TILE)}px`
+  #tickAnts(): void {
+    this.ants.forEach((ant) => {
+      tick(ant)
+      this.renderer?.updateAnt(ant)
     })
   }
 
@@ -108,15 +90,7 @@ export class World {
       } else {
         this.pheromones.delete(tile)
       }
-    })
-  }
-
-  #renderUpdatePheromones(): void {
-    this.pheromones.forEach((pheromone) => {
-      if (!pheromone.element) {
-        return
-      }
-      pheromone.element.style.opacity = `${pheromone.amount / PHEROMONE_MAX}`
+      this.renderer?.updatePheromone(pheromone)
     })
   }
 }

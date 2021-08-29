@@ -1,4 +1,5 @@
 import { Game } from './game'
+import { Renderer } from './renderer'
 import { FOOD_MAX_PER_TILE } from './setting'
 import { World } from './world'
 
@@ -6,7 +7,8 @@ const maxAnts = 100
 const addAntIntervalInMs = 234
 let intervalId: NodeJS.Timer | void
 
-const world = new World(80, 80)
+const renderer = new Renderer({ renderPheromones: false })
+const world = new World(80, 80, renderer)
 const game = new Game(world)
 
 world.addNestHole(world.getTile([2, 5]))
