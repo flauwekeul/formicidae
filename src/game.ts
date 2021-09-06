@@ -14,7 +14,10 @@ export class Game {
   }
 
   start(): void {
-    this.#requestAnimationId = requestAnimationFrame(this.tick.bind(this))
+    this.#requestAnimationId = requestAnimationFrame((timestamp) => {
+      this.tick(timestamp)
+      this.start()
+    })
   }
 
   stop(): void {
@@ -30,7 +33,6 @@ export class Game {
       this.#prevTimestamp = timestamp
       this.world.tick()
     }
-    this.start()
   }
 
   #setStyles(): void {

@@ -8,9 +8,12 @@ export interface Ant {
   tile: Tile
   direction: number
   element?: HTMLImageElement
+  transporting?: number
 }
 
 export type directionInDegrees = 30 | 90 | 150 | 210 | 270 | 330
+
+export type directionOffset = -1 | 0 | 1
 
 export interface NestHole {
   tile: Tile

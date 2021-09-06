@@ -10,8 +10,8 @@ export class World {
   #grid: Grid<Tile>
 
   ants: Ant[] = []
-  nestHoles: NestHole[] = []
-  foods: Food[] = []
+  nestHoles = new Map<string, NestHole>()
+  foods = new Map<string, Food>()
   pheromones = new Map<string, Pheromone>()
 
   constructor(public gridWidth: number, public gridHeight: number, public renderer?: Renderer) {
@@ -34,13 +34,13 @@ export class World {
   addNestHole(tile: Tile): void {
     const nestHole: NestHole = { tile }
     this.renderer?.renderNestHole(nestHole)
-    this.nestHoles.push(nestHole)
+    this.nestHoles.set(tile.toString(), nestHole)
   }
 
   addFood(tile: Tile, amount: number): void {
     const food: Food = { tile, amount }
     this.renderer?.renderFood(food)
-    this.foods.push(food)
+    this.foods.set(tile.toString(), food)
   }
 
   addPheromone(type: pheromoneType, tile: Tile, direction: number): void {

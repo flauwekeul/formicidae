@@ -7,7 +7,7 @@ export class Renderer {
   options: RenderOptions = {
     renderAnts: true,
     renderFoods: true,
-    renderPheromones: true,
+    renderPheromones: false,
   }
 
   constructor(options: Partial<RenderOptions> = {}) {
