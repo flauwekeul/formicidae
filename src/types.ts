@@ -37,6 +37,7 @@ export interface Pheromone {
 export type pheromoneType = 'nest' | 'food'
 
 export interface RenderOptions {
+  offset: { top: number; left: number }
   renderAnts: boolean
   renderFoods: boolean
   renderPheromones: boolean

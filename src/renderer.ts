@@ -5,6 +5,7 @@ import { createElement, updateStyle } from './utils'
 
 export class Renderer {
   options: RenderOptions = {
+    offset: { top: 0, left: 0 },
     renderAnts: true,
     renderFoods: true,
     renderPheromones: false,
@@ -27,8 +28,8 @@ export class Renderer {
       return
     }
     updateStyle(ant.element, {
-      top: `${ant.tile.y}px`,
-      left: `${ant.tile.x}px`,
+      top: `${this.options.offset.top + ant.tile.y}px`,
+      left: `${this.options.offset.left + ant.tile.x}px`,
       transform: `translate(-50%, -50%) rotate(${ant.direction}deg)`,
     })
   }
@@ -36,8 +37,8 @@ export class Renderer {
   renderNestHole(nestHole: NestHole): void {
     const element = createElement('div', { className: 'hole' })
     updateStyle(element, {
-      top: `${nestHole.tile.y}px`,
-      left: `${nestHole.tile.x}px`,
+      top: `${this.options.offset.top + nestHole.tile.y}px`,
+      left: `${this.options.offset.left + nestHole.tile.x}px`,
     })
     nestHole.element = element
   }
@@ -48,8 +49,8 @@ export class Renderer {
     }
     const element = createElement('div', { className: 'food' })
     updateStyle(element, {
-      top: `${food.tile.y}px`,
-      left: `${food.tile.x}px`,
+      top: `${this.options.offset.top + food.tile.y}px`,
+      left: `${this.options.offset.left + food.tile.x}px`,
     })
     food.element = element
     this.updateFood(food)
@@ -69,10 +70,10 @@ export class Renderer {
     if (!this.options.renderPheromones) {
       return
     }
-    const element = pheromone?.element ?? createElement('div', { className: 'pheromone' })
+    const element = pheromone?.element ?? createElement('div', { className: `pheromone ${pheromone.type}` })
     updateStyle(element, {
-      top: `${pheromone.tile.y}px`,
-      left: `${pheromone.tile.x}px`,
+      top: `${this.options.offset.top + pheromone.tile.y}px`,
+      left: `${this.options.offset.left + pheromone.tile.x}px`,
     })
     pheromone.element = element
     this.updatePheromone(pheromone)

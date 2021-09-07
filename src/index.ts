@@ -3,17 +3,17 @@ import { Renderer } from './renderer'
 import { FOOD_MAX_PER_TILE } from './setting'
 import { World } from './world'
 
-const maxAnts = 1
+const maxAnts = 3
 const addAntIntervalInMs = 234
 let intervalId: NodeJS.Timer | void
 
-const renderer = new Renderer({ renderPheromones: true })
-const world = new World(10, 10, renderer)
+const renderer = new Renderer({ offset: { top: 200, left: 400 }, renderPheromones: true })
+const world = new World(20, 20, renderer)
 const game = new Game(world)
 
 const nestHoleTile = world.getTile([1, 1])
 world.addNestHole(nestHoleTile)
-world.addFood(world.getTile([4, 9]), FOOD_MAX_PER_TILE)
+world.addFood(world.getTile([9, 19]), FOOD_MAX_PER_TILE)
 
 document.addEventListener('keyup', (event) => {
   if (event.key === ' ') {

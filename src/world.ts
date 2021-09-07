@@ -44,7 +44,7 @@ export class World {
   }
 
   addPheromone(type: pheromoneType, tile: Tile, direction: number): void {
-    const id = tile.toString()
+    const id = this.pheromoneId(tile, type)
     const amount = ANT_PHEROMONE_DROP_AMOUNT + (this.pheromones.get(id)?.amount ?? 0)
     const pheromone: Pheromone = {
       tile,
@@ -55,6 +55,10 @@ export class World {
     }
     this.renderer?.renderPheromone(pheromone)
     this.pheromones.set(id, pheromone)
+  }
+
+  pheromoneId(tile: Tile, type: pheromoneType): string {
+    return `${tile.toString()}-${type}`
   }
 
   tileExists(tile: Tile): boolean {
@@ -83,12 +87,12 @@ export class World {
   }
 
   #tickPheromones(): void {
-    this.pheromones.forEach((pheromone, tile) => {
+    this.pheromones.forEach((pheromone, id) => {
       const amount = Math.min(PHEROMONE_MAX, pheromone.amount - PHEROMONE_DECAY_PER_TICK)
       if (amount > 0) {
         pheromone.amount = amount
       } else {
-        this.pheromones.delete(tile)
+        this.pheromones.delete(id)
       }
       this.renderer?.updatePheromone(pheromone)
     })

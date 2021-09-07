@@ -30,10 +30,12 @@ const turnRight = (ant: Ant): true => {
   return true
 }
 
-const dropPheromone = ({ world, tile, direction }: Ant): true => {
-  world.addPheromone('nest', tile, direction)
-  return true
-}
+const leavePheromone =
+  (type: pheromoneType) =>
+  ({ world, tile, direction }: Ant): true => {
+    world.addPheromone(type, tile, direction)
+    return true
+  }
 
 const tileHasFood =
   (offset: directionOffset): Task<Ant> =>
@@ -43,8 +45,10 @@ const tileHasFood =
 const tileHasPheromone =
   (type: pheromoneType) =>
   (offset: directionOffset): Task<Ant> =>
-  (ant) =>
-    ant.world.pheromones.get(tileInFront(ant, offset).toString())?.type === type
+  (ant) => {
+    const pheromoneId = ant.world.pheromoneId(tileInFront(ant, offset), type)
+    return ant.world.pheromones.has(pheromoneId)
+  }
 
 const tileIsNest =
   (offset: directionOffset): Task<Ant> =>
@@ -71,21 +75,28 @@ const dropFood = (ant: Ant): boolean => {
   return true
 }
 
-const turnToward = (inDirection: (offset: directionOffset) => Task<Ant>) =>
+const face = (inDirection: (offset: directionOffset) => Task<Ant>) =>
   select(inDirection(0), sequence(inDirection(-1), turnLeft), sequence(inDirection(1), turnRight))
 
 const isTransportingFood = (ant: Ant): boolean => !!ant.transporting && ant.transporting > 0
 
 const randomTurn = randomSelect(turnLeft, turnRight)
 
-const scout = select(sequence(sample(0.12), randomTurn), sequence(walk, dropPheromone), randomTurn)
+const walkWithTrail = (type: pheromoneType) => sequence(walk, leavePheromone(type))
 
-const transportFood = sequence(
-  isTransportingFood,
-  select(sequence(turnToward(tileIsNest), dropFood), sequence(turnToward(tileHasPheromone('nest')), walk), turnLeft),
+const scout = select(
+  sequence(face(tileHasPheromone('food')), walk),
+  sequence(sample(0.12), randomTurn),
+  walkWithTrail('nest'),
+  randomTurn,
 )
 
-export const tick = select(transportFood, sequence(turnToward(tileHasFood), takeFood), scout)
+const transportFood = select(
+  sequence(face(tileIsNest), dropFood),
+  select(sequence(face(tileHasPheromone('nest')), walkWithTrail('food')), walkWithTrail('food'), randomTurn),
+)
+
+export const tick = select(sequence(isTransportingFood, transportFood), sequence(face(tileHasFood), takeFood), scout)
 
 export const createAnt = ({ world, tile, direction }: Ant): Ant => {
   return {
