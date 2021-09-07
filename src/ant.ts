@@ -1,7 +1,7 @@
-import { randomSelect, select, sequence, Task } from '../behaviorTree'
-import { ANT_CARRY_CAPACITY } from '../setting'
-import { Ant, directionOffset, pheromoneType, Tile } from '../types'
-import { sample } from '../utils'
+import { randomSelect, select, sequence, Task } from './behaviorTree'
+import { ANT_CARRY_CAPACITY } from './setting'
+import { Ant, directionOffset, pheromoneType, Tile } from './types'
+import { sample } from './utils'
 
 const tileInFront = ({ world, tile, direction }: Ant, offset: directionOffset = 0): Tile => {
   return world.neighborOfTile(tile, direction + offset * 60)
@@ -78,6 +78,9 @@ const dropFood = (ant: Ant): boolean => {
 const face = (inDirection: (offset: directionOffset) => Task<Ant>) =>
   select(inDirection(0), sequence(inDirection(-1), turnLeft), sequence(inDirection(1), turnRight))
 
+// const avoid = (inDirection: (offset: directionOffset) => Task<Ant>) =>
+//   select(not(inDirection(0)), sequence(not(inDirection(-1)), turnLeft), sequence(not(inDirection(1)), turnRight))
+
 const isTransportingFood = (ant: Ant): boolean => !!ant.transporting && ant.transporting > 0
 
 const randomTurn = randomSelect(turnLeft, turnRight)
@@ -86,6 +89,7 @@ const walkWithTrail = (type: pheromoneType) => sequence(walk, leavePheromone(typ
 
 const scout = select(
   sequence(face(tileHasPheromone('food')), walk),
+  // sequence(sample(0.4), avoid(tileHasPheromone('nest')), walkAndDrop('nest')),
   sequence(sample(0.12), randomTurn),
   walkWithTrail('nest'),
   randomTurn,

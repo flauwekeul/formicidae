@@ -1,4 +1,4 @@
-import antSvgPath from './ant/ant.svg'
+import antSvgPath from './assets/ant.svg'
 import { FOOD_MAX_PER_TILE, PHEROMONE_MAX, TILE_SIZE } from './setting'
 import { Ant, Food, NestHole, Pheromone, RenderOptions } from './types'
 import { createElement, updateStyle } from './utils'
