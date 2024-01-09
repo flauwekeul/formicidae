@@ -2,7 +2,13 @@ import { createHexPrototype, Grid, HexCoordinates, neighborOf, rectangle } from 
 import { createAnt, tick } from './ant'
 import { DEGREES, DEGREES_TO_COMPASS_DIRECTION_MAP } from './constants'
 import { Renderer } from './renderer'
-import { ANT_PHEROMONE_DROP_AMOUNT, PHEROMONE_DECAY_PER_TICK, PHEROMONE_MAX, TILE_SIZE } from './setting'
+import {
+  ANT_CARRY_CAPACITY,
+  ANT_PHEROMONE_DROP_AMOUNT,
+  PHEROMONE_DECAY_PER_TICK,
+  PHEROMONE_MAX,
+  TILE_SIZE,
+} from './setting'
 import { Ant, Food, NestHole, Pheromone, pheromoneType, Tile } from './types'
 import { normalizeDirection, randomArrayItem } from './utils'
 
@@ -41,6 +47,12 @@ export class World {
     const food: Food = { tile, amount }
     this.renderer?.renderFood(food)
     this.foods.set(tile.toString(), food)
+  }
+
+  reduceFood(food: Food): number {
+    const amount = Math.min(ANT_CARRY_CAPACITY, food.amount)
+    food.amount -= amount
+    return amount
   }
 
   addPheromone(type: pheromoneType, tile: Tile, direction: number): void {

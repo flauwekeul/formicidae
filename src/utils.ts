@@ -12,6 +12,15 @@ export function randomArrayItem<T>(array: ReadonlyArray<T>, random = Math.random
   return array[Math.floor(random() * array.length)]
 }
 
+export function shuffleArray<T>(array: ReadonlyArray<T>): Array<T> {
+  const result: Array<T> = [...array]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
 export function normalizeDirection(direction: number): directionInDegrees {
   // the (degrees) direction can be negative, so a regular modulus won't do
   return signedModulo(direction, 360) as directionInDegrees

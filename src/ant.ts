@@ -1,5 +1,4 @@
 import { randomSelect, select, sequence, Task } from './behaviorTree'
-import { ANT_CARRY_CAPACITY } from './setting'
 import { Ant, directionOffset, pheromoneType, Tile } from './types'
 import { sample } from './utils'
 
@@ -42,12 +41,19 @@ const tileHasFood =
   (ant) =>
     ant.world.foods.has(tileInFront(ant, offset).toString())
 
-const tileHasPheromone =
-  (type: pheromoneType) =>
-  (offset: directionOffset): Task<Ant> =>
+const faceTileWithMostPheromone =
+  (type: pheromoneType): Task<Ant> =>
   (ant) => {
-    const pheromoneId = ant.world.pheromoneId(tileInFront(ant, offset), type)
-    return ant.world.pheromones.has(pheromoneId)
+    const frontAmount = ant.world.pheromones.get(ant.world.pheromoneId(tileInFront(ant), type))?.amount ?? 0
+    const leftAmount = ant.world.pheromones.get(ant.world.pheromoneId(tileInFront(ant, -1), type))?.amount ?? 0
+    const rightAmount = ant.world.pheromones.get(ant.world.pheromoneId(tileInFront(ant, 1), type))?.amount ?? 0
+    if (frontAmount + leftAmount + rightAmount === 0) {
+      return false
+    }
+    if (frontAmount >= leftAmount && frontAmount >= rightAmount) {
+      return true
+    }
+    return leftAmount >= rightAmount ? turnLeft(ant) : turnRight(ant)
   }
 
 const tileIsNest =
@@ -60,9 +66,7 @@ const takeFood = (ant: Ant): boolean => {
   if (!food) {
     return false
   }
-  const amount = Math.min(ANT_CARRY_CAPACITY, food.amount)
-  food.amount -= amount
-  ant.transporting = amount
+  ant.transporting = ant.world.reduceFood(food)
   return true
 }
 
@@ -88,7 +92,7 @@ const randomTurn = randomSelect(turnLeft, turnRight)
 const walkWithTrail = (type: pheromoneType) => sequence(walk, leavePheromone(type))
 
 const scout = select(
-  sequence(face(tileHasPheromone('food')), walk),
+  sequence(faceTileWithMostPheromone('food'), walk),
   // sequence(sample(0.4), avoid(tileHasPheromone('nest')), walkAndDrop('nest')),
   sequence(sample(0.12), randomTurn),
   walkWithTrail('nest'),
@@ -97,7 +101,11 @@ const scout = select(
 
 const transportFood = select(
   sequence(face(tileIsNest), dropFood),
-  select(sequence(face(tileHasPheromone('nest')), walkWithTrail('food')), walkWithTrail('food'), randomTurn),
+  select(
+    sequence(/* face(tileHasPheromone('nest')) */ faceTileWithMostPheromone('nest'), walkWithTrail('food')),
+    walkWithTrail('food'),
+    randomTurn,
+  ),
 )
 
 export const tick = select(sequence(isTransportingFood, transportFood), sequence(face(tileHasFood), takeFood), scout)
